@@ -24,7 +24,7 @@ const T = {
     status: "PUBLISHED",
     featured: true,
     githubUrl: "https://github.com/Sky-ydv2008/ai-powered-mini-erp",
-    demoUrl: "https://sky-ydv2008.github.io/Team.Apex/",
+    demoUrl: "https://apex-innovators.onrender.com/",
     docsUrl: null,
     year: 2026,
     technologies: [
@@ -643,5 +643,14 @@ export function demoFetch(method, path, params = {}, body = {}) {
 
 /** True when served without a backend (GitHub Pages, file://, localhost, or ?demo=1). */
 export function demoActive() {
-  return true;
+  try {
+    return window.location.protocol === "file:"
+      || window.location.hostname.endsWith("github.io")
+      || window.location.hostname === "localhost"
+      || window.location.hostname === "127.0.0.1"
+      || window.location.hostname === "0.0.0.0"
+      || new URLSearchParams(window.location.search).has("demo");
+  } catch (e) {
+    return false;
+  }
 }
