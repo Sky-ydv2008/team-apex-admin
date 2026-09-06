@@ -125,8 +125,10 @@ export async function apiFetch(path, opts = {}) {
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch (err) {
-    const fallback = demoFetch(method, path, params, body);
-    if (fallback && !fallback.__demoError) return fallback;
+    if (!auth) {
+      const fallback = demoFetch(method, path, params, body);
+      if (fallback && !fallback.__demoError) return fallback;
+    }
     throw new ApiError(0, {
       status: 0,
       message: "Network error — the server could not be reached. Check that the backend is running.",
@@ -144,8 +146,10 @@ export async function apiFetch(path, opts = {}) {
   }
 
   if (!response.ok) {
-    const fallback = demoFetch(method, path, params, body);
-    if (fallback && !fallback.__demoError) return fallback;
+    if (!auth && response.status !== 401 && response.status !== 403) {
+      const fallback = demoFetch(method, path, params, body);
+      if (fallback && !fallback.__demoError) return fallback;
+    }
     const normalized = {
       status: response.status,
       message: (payload && typeof payload.message === "string" && payload.message)
@@ -160,7 +164,7 @@ export async function apiFetch(path, opts = {}) {
         if (!(k in normalized)) normalized[k] = v;
       }
     }
-    if (response.status === 401 && auth) {
+    if ((response.status === 401 || response.status === 403) && auth) {
       const rel = window.location.pathname.replace(/^\//, "") || "index.html";
       redirectToLogin(rel);
     }

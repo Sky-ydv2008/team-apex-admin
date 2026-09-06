@@ -10,7 +10,23 @@ import { demoActive } from "./demo-data.js";
 export { TOKEN_KEY, REFRESH_KEY, USER_KEY };
 
 /** Current stored user object (sync read) or null. */
+export function getToken() {
+  try {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token || token.startsWith("demo-token")) {
+      if (token && token.startsWith("demo-token")) {
+        clearSession();
+      }
+      return null;
+    }
+    return token;
+  } catch (err) {
+    return null;
+  }
+}
+
 export function getUser() {
+  if (!getToken()) return null;
   try {
     const raw = localStorage.getItem(USER_KEY);
     if (!raw) return null;
@@ -19,10 +35,6 @@ export function getUser() {
   } catch (err) {
     return null;
   }
-}
-
-export function getToken() {
-  return localStorage.getItem(TOKEN_KEY) || null;
 }
 
 export function isAuthenticated() {
@@ -70,11 +82,13 @@ export async function logout() {
 }
 
 /** Home path depending on whether we are under /admin/. */
-export function homePath() { return "https://sky-ydv2008.github.io/Team.Apex/"; }
+export function homePath() {
+  return window.location.pathname.includes("/admin/") ? "../index.html" : "index.html";
+}
 
 /** Login path depending on whether we are under /admin/. */
 export function loginPath() {
-  return "https://sky-ydv2008.github.io/Team.Apex/login.html";
+  return window.location.pathname.includes("/admin/") ? "../login.html" : "login.html";
 }
 
 /**
@@ -84,40 +98,48 @@ export function loginPath() {
  * @returns {Promise<object|null>} the admin user, or null if redirected.
  */
 export async function guardAdmin() {
+  const currentRel = window.location.pathname.replace(/^\//, "") || "admin/dashboard.html";
   if (!getToken()) {
-    redirectToLogin(window.location.href);
+    clearSession();
+    redirectToLogin(currentRel);
     return null;
   }
   let user = null;
   try {
     user = await apiFetch("/auth/me", { auth: true });
   } catch (err) {
-    if (err instanceof ApiError && err.status === 401) return null;
-    user = getUser();
+    clearSession();
+    redirectToLogin(currentRel);
+    return null;
   }
 
   if (!user || user.role !== "ADMIN") {
-    redirectToLogin(window.location.href);
+    clearSession();
+    redirectToLogin(currentRel);
     return null;
   }
   return user;
 }
 
 export async function guardModerator() {
+  const currentRel = window.location.pathname.replace(/^\//, "") || "admin/projects.html";
   if (!getToken()) {
-    redirectToLogin(window.location.href);
+    clearSession();
+    redirectToLogin(currentRel);
     return null;
   }
   let user = null;
   try {
     user = await apiFetch("/auth/me", { auth: true });
   } catch (err) {
-    if (err instanceof ApiError && err.status === 401) return null;
-    user = getUser();
+    clearSession();
+    redirectToLogin(currentRel);
+    return null;
   }
 
   if (!user || (user.role !== "ADMIN" && user.role !== "CORE_MEMBER")) {
-    redirectToLogin(window.location.href);
+    clearSession();
+    redirectToLogin(currentRel);
     return null;
   }
   if (typeof window !== "undefined") window.__GUARD_MODERATOR_USER = user;
