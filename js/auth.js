@@ -84,6 +84,10 @@ export function loginPath() {
  * @returns {Promise<object|null>} the admin user, or null if redirected.
  */
 export async function guardAdmin() {
+  if (!getToken()) {
+    redirectToLogin(window.location.href);
+    return null;
+  }
   let user = null;
   try {
     user = await apiFetch("/auth/me", { auth: true });
@@ -93,14 +97,17 @@ export async function guardAdmin() {
   }
 
   if (!user || user.role !== "ADMIN") {
-    const currentRel = window.location.href;
-    redirectToLogin(currentRel);
+    redirectToLogin(window.location.href);
     return null;
   }
   return user;
 }
 
 export async function guardModerator() {
+  if (!getToken()) {
+    redirectToLogin(window.location.href);
+    return null;
+  }
   let user = null;
   try {
     user = await apiFetch("/auth/me", { auth: true });
@@ -110,8 +117,7 @@ export async function guardModerator() {
   }
 
   if (!user || (user.role !== "ADMIN" && user.role !== "CORE_MEMBER")) {
-    const currentRel = window.location.href;
-    redirectToLogin(currentRel);
+    redirectToLogin(window.location.href);
     return null;
   }
   if (typeof window !== "undefined") window.__GUARD_MODERATOR_USER = user;
