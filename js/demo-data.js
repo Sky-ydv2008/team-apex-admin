@@ -328,23 +328,25 @@ export function demoFetch(method, path, params = {}, body = {}) {
           },
         };
       }
-      return err(401, "Incorrect email or password. In demo mode, use apex.innovator.team@gmail.com (Apex@Shivam), the.aryangupta10@gmail.com (Apex@Aryan), or bisoyilipsarani@gmail.com (Apex@Lipsa).");
+      return err(401, "Incorrect email or password.");
     }
 
     if (method === "GET" && (sub === "me" || sub === "profile")) {
       try {
-        const raw = localStorage.getItem("ai_user");
-        if (raw) return JSON.parse(raw);
+        const token = typeof localStorage !== "undefined" ? localStorage.getItem("ai_token") : null;
+        const raw = typeof localStorage !== "undefined" ? localStorage.getItem("ai_user") : null;
+        if (token && raw) return JSON.parse(raw);
       } catch (e) {}
-      return DEMO_ACCOUNTS[0];
+      return err(401, "Unauthenticated");
     }
 
     if (method === "PUT" && sub === "profile") {
-      let current = DEMO_ACCOUNTS[0];
+      let current = null;
       try {
-        const raw = localStorage.getItem("ai_user");
+        const raw = typeof localStorage !== "undefined" ? localStorage.getItem("ai_user") : null;
         if (raw) current = JSON.parse(raw);
       } catch (e) {}
+      if (!current) return err(401, "Unauthenticated");
       const updated = { ...current, ...(body || {}) };
       try {
         localStorage.setItem("ai_user", JSON.stringify(updated));
@@ -378,6 +380,16 @@ export function demoFetch(method, path, params = {}, body = {}) {
 
   // Admin endpoints (demo mode) ---------------------------------------
   if (base === "admin") {
+    let currentUser = null;
+    const token = typeof localStorage !== "undefined" ? localStorage.getItem("ai_token") : null;
+    try {
+      const raw = typeof localStorage !== "undefined" ? localStorage.getItem("ai_user") : null;
+      if (raw) currentUser = JSON.parse(raw);
+    } catch (e) {}
+
+    if (!token || !currentUser || (currentUser.role !== "ADMIN" && currentUser.role !== "CORE_MEMBER")) {
+      return err(401, "Unauthorized admin access");
+    }
     const sub = seg[1];
     if (sub === "overview") {
       return {

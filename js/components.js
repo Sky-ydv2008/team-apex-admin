@@ -533,24 +533,6 @@ export function mountAuthUI() {
     host.innerHTML = appBtn + parts.join("");
   }
 
-  const adminSwitch = document.getElementById("nav-admin-switch");
-  if (adminSwitch) {
-    adminSwitch.addEventListener("click", () => {
-      const demoUser = {
-        id: 1,
-        name: "Shivam Yadav",
-        email: "apex.innovator.team@gmail.com",
-        role: "ADMIN",
-        status: "ACTIVE",
-        headline: "Java Backend Developer",
-        github: "Sky-ydv2008"
-      };
-      try {
-        localStorage.setItem("ai_token", "demo-token-1");
-        localStorage.setItem("ai_user", JSON.stringify(demoUser));
-      } catch (e) {}
-    });
-  }
   const logoutBtn = document.getElementById("nav-logout");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {

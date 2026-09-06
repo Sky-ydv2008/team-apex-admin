@@ -74,18 +74,17 @@ export function homePath() { return "https://sky-ydv2008.github.io/Team.Apex/"; 
 
 /** Login path depending on whether we are under /admin/. */
 export function loginPath() {
-  return window.location.pathname.includes("/admin/") ? "../login.html" : "login.html";
+  return "https://sky-ydv2008.github.io/Team.Apex/login.html";
 }
 
 /**
  * Admin guard for pages under /admin/. Verifies the Bearer session via
  * /api/auth/me and that role === 'ADMIN'.
- * - 401 → apiFetch clears the session and redirects to login.html.
- * - Non-admin → redirected to the public home page.
+ * - 401 / Not Admin → clears session and redirects to login.html.
  * @returns {Promise<object|null>} the admin user, or null if redirected.
  */
 export async function guardAdmin() {
-  let user;
+  let user = null;
   try {
     user = await apiFetch("/auth/me", { auth: true });
   } catch (err) {
@@ -93,33 +92,16 @@ export async function guardAdmin() {
     user = getUser();
   }
 
-  const demoAdminUser = {
-    id: 1,
-    name: "Shivam Yadav",
-    email: "apex.innovator.team@gmail.com",
-    role: "ADMIN",
-    status: "ACTIVE",
-    headline: "Java Backend Developer",
-    github: "Sky-ydv2008"
-  };
-
-  if ((!user || user.role !== "ADMIN") && demoActive()) {
-    try {
-      localStorage.setItem(TOKEN_KEY, "demo-token-1");
-      localStorage.setItem(USER_KEY, JSON.stringify(demoAdminUser));
-      user = demoAdminUser;
-    } catch (e) {}
-  }
-
   if (!user || user.role !== "ADMIN") {
-    window.location.assign(homePath());
+    const currentRel = window.location.href;
+    redirectToLogin(currentRel);
     return null;
   }
   return user;
 }
 
 export async function guardModerator() {
-  let user;
+  let user = null;
   try {
     user = await apiFetch("/auth/me", { auth: true });
   } catch (err) {
@@ -127,26 +109,9 @@ export async function guardModerator() {
     user = getUser();
   }
 
-  const demoAdminUser = {
-    id: 1,
-    name: "Shivam Yadav",
-    email: "apex.innovator.team@gmail.com",
-    role: "ADMIN",
-    status: "ACTIVE",
-    headline: "Java Backend Developer",
-    github: "Sky-ydv2008"
-  };
-
-  if ((!user || (user.role !== "ADMIN" && user.role !== "CORE_MEMBER")) && demoActive()) {
-    try {
-      localStorage.setItem(TOKEN_KEY, "demo-token-1");
-      localStorage.setItem(USER_KEY, JSON.stringify(demoAdminUser));
-      user = demoAdminUser;
-    } catch (e) {}
-  }
-
   if (!user || (user.role !== "ADMIN" && user.role !== "CORE_MEMBER")) {
-    window.location.assign(homePath());
+    const currentRel = window.location.href;
+    redirectToLogin(currentRel);
     return null;
   }
   if (typeof window !== "undefined") window.__GUARD_MODERATOR_USER = user;
