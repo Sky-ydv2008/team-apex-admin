@@ -250,9 +250,12 @@ const PUBLIC_LINKS = [
   { id: "events", href: "events.html", label: "Events" },
   { id: "resources", href: "resources.html", label: "Resources" },
   { id: "contact", href: "contact.html", label: "Contact" },
+  { id: "admin", href: "admin/projects.html", label: "Admin Panel" },
 ];
 
-function logoPath() { return "logo.png"; }
+function logoPath() {
+  return typeof window !== "undefined" && window.location.pathname.includes("/admin/") ? "../logo.png" : "logo.png";
+}
 
 function brandMark() {
   return `<img src="${logoPath()}" class="brand-mark-img" alt="Apex Logo" style="width:28px;height:28px;border-radius:50%;object-fit:cover;margin-right:0.45rem;vertical-align:middle;display:inline-block;box-shadow:0 0 10px rgba(34,211,238,0.35);border:1px solid rgba(34,211,238,0.4);" onerror="this.style.display='none'">`;
@@ -442,11 +445,7 @@ export function injectFooter() {
             <li><a href="team.html">${icon("users")} Team</a></li>
             <li><a href="achievements.html">${icon("award")} Achievements</a></li>
             <li><a href="community.html">${icon("message")} Community</a></li>
-            <li><a href="https://sky-ydv2008.github.io/Team.Apex/admin/dashboard.html">${icon("shield")} Admin Panel</a></li>
-        </nav>
-
-        <nav class="footer-col" aria-label="Learn">
-          <h4>Learn</h4>
+            <li><a href="admin/projects.html">${icon("shield")} Admin Panel</a></li>
           <ul>
             <li><a href="events.html">${icon("calendar")} Events</a></li>
             <li><a href="resources.html">${icon("book")} Resources</a></li>
@@ -509,7 +508,9 @@ export function mountAuthUI() {
   const here = (target) => page === target;
 
   const appBtn = isAppMode() ? "" : `<a class="btn btn-sm btn-outline" href="https://github.com/Sky-ydv2008/Team.Apex/releases/download/v1.0.0/ApexInnovators.apk" download="ApexInnovators.apk" type="application/vnd.android.package-archive" data-app-download="true" title="Download Android App" style="border-color:rgba(34,211,238,0.35);color:#22d3ee;display:inline-flex;align-items:center;gap:0.35rem;">${icon("smartphone")} <span>App</span></a>`;
-  const adminBtn = `<a class="btn btn-sm btn-outline btn-admin-switch" id="nav-admin-switch" href="https://sky-ydv2008.github.io/Team.Apex/admin/dashboard.html" title="Switch to Admin Panel" style="border-color:rgba(168,85,247,0.45);color:#c084fc;background:rgba(168,85,247,0.12);display:inline-flex;align-items:center;gap:0.35rem;">${icon("dashboard")} <span>Admin Panel</span></a>`;
+  const targetAdminUrl = page.includes("/admin/") ? "projects.html" : "admin/projects.html";
+  const adminBtn = `<a class="btn btn-sm btn-outline btn-admin-switch" id="nav-admin-switch" href="${targetAdminUrl}" title="Switch to Admin Panel" style="border-color:rgba(168,85,247,0.45);color:#c084fc;background:rgba(168,85,247,0.12);display:inline-flex;align-items:center;gap:0.35rem;">${icon("dashboard")} <span>Admin Panel</span></a>`;
+
   if (!user || !localStorage.getItem("ai_token")) {
     const loginBtn = here("login.html")
       ? ""
@@ -592,7 +593,7 @@ export function injectAdminShell(active, user) {
       <p class="admin-nav-label">Manage</p>
       <nav class="admin-nav anime-nav-pill-container" id="admin-nav-pill-root" aria-label="Admin sections" style="position:relative;flex-direction:column;align-items:stretch;background:transparent;border:none;box-shadow:none;padding:0.25rem 0.65rem;">${links}</nav>
       <div class="admin-side-foot">
-        <a class="admin-nav-link" href="https://sky-ydv2008.github.io/Team.Apex/">${icon("globe")} View public site</a>
+        <a class="admin-nav-link" href="https://sky-ydv2008.github.io/Team.Apex/">${icon("globe")} Back to Public Website</a>
       </div>`;
 
     const adminNavPill = document.getElementById("admin-nav-pill-root");
@@ -611,7 +612,7 @@ export function injectAdminShell(active, user) {
         <h1 class="admin-page-title">${esc(section.label)}</h1>
       </div>
       <div class="admin-top-right">
-        <a class="btn btn-sm btn-outline" href="https://sky-ydv2008.github.io/Team.Apex/" title="Switch back to Public Website" style="border-color:rgba(34,211,238,0.4);color:#22d3ee;background:rgba(34,211,238,0.1);display:inline-flex;align-items:center;gap:0.35rem;margin-right:0.5rem;">${icon("globe")} <span>Public Site</span></a>
+        <a class="btn btn-sm btn-outline" href="https://sky-ydv2008.github.io/Team.Apex/" title="Switch back to Public Website" style="border-color:rgba(34,211,238,0.5);color:#22d3ee;background:rgba(34,211,238,0.15);display:inline-flex;align-items:center;gap:0.35rem;margin-right:0.75rem;font-weight:600;">${icon("globe")} <span>Back to Public Website</span></a>
         <span class="admin-top-user">
           ${avatar(who, "", "avatar-sm avatar-round")}
           <span class="who">${who}<span>${user && user.role ? esc(humanize(user.role)) : "Administrator"}</span></span>
@@ -686,7 +687,7 @@ export function injectAdminShell(active, user) {
             <a href="projects.html" class="footer-glass-pill magnetic-btn" style="padding:0.4rem 0.9rem;font-size:0.8rem;">${icon("code")} Projects</a>
             <a href="posts.html" class="footer-glass-pill magnetic-btn" style="padding:0.4rem 0.9rem;font-size:0.8rem;">${icon("message")} Posts</a>
             <a href="users.html" class="footer-glass-pill magnetic-btn" style="padding:0.4rem 0.9rem;font-size:0.8rem;">${icon("users")} Users</a>
-            <a href="https://sky-ydv2008.github.io/Team.Apex/" class="footer-glass-pill magnetic-btn" style="padding:0.4rem 0.9rem;font-size:0.8rem;border-color:rgba(34,211,238,0.3);color:#7dd3fc;">${icon("globe")} View Public Site</a>
+            <a href="../index.html" class="footer-glass-pill magnetic-btn" style="padding:0.4rem 0.9rem;font-size:0.8rem;border-color:rgba(34,211,238,0.3);color:#7dd3fc;">${icon("globe")} View Public Site</a>
           </div>
         </div>
 
