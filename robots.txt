@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /admin/
+Disallow:
 
-Sitemap: https://sky-ydv2008.github.io/Team.Apex/sitemap.xml
-Sitemap: https://apex-innovators.onrender.com/sitemap.xml
+Sitemap: https://team-apex-admin.vercel.app/sitemap.xml
