@@ -1,5 +1,5 @@
 /**
- * Apex Innovators Admin — api.js
+ * Apex Innovators — api.js
  * Fetch wrapper around the REST surface (prefix `/api`).
  * - Bearer token (ai_token) attached when opts.auth is true.
  * - JSON errors normalized to the contract error shape:
@@ -54,7 +54,7 @@ const STATUS_TEXT = {
 };
 
 export function loginPath() {
-  return "login.html";
+  return window.location.pathname.includes("/admin/") ? "../login.html" : "login.html";
 }
 
 export function clearSession() {
@@ -102,7 +102,7 @@ export async function apiFetch(path, opts = {}) {
     if (demoResult && demoResult.__demoError) {
       const de = demoResult.__demoError;
       if (de.status === 401 && auth) {
-        const rel = window.location.pathname.replace(/^\//, "") || "dashboard.html";
+        const rel = window.location.pathname.replace(/^\//, "") || "index.html";
         redirectToLogin(rel);
       }
       throw new ApiError(de.status, {
@@ -131,25 +131,24 @@ export async function apiFetch(path, opts = {}) {
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch (err) {
-    if (!auth) {
-      try {
-        const renderUrl = new URL(RENDER_FALLBACK + path);
-        if (params) {
-          for (const [key, value] of Object.entries(params)) {
-            if (value !== undefined && value !== null && value !== "") {
-              renderUrl.searchParams.set(key, String(value));
-            }
+    try {
+      const renderUrl = new URL(RENDER_FALLBACK + path);
+      if (params) {
+        for (const [key, value] of Object.entries(params)) {
+          if (value !== undefined && value !== null && value !== "") {
+            renderUrl.searchParams.set(key, String(value));
           }
         }
-        const rRes = await fetch(renderUrl, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
-        if (rRes.ok) {
-          const rText = await rRes.text();
-          if (rText) return JSON.parse(rText);
-        }
-      } catch (rErr) { /* ignore fallback error */ }
-      const fallback = demoFetch(method, path, params, body);
-      if (fallback && !fallback.__demoError) return fallback;
-    }
+      }
+      const rRes = await fetch(renderUrl, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
+      if (rRes.ok) {
+        const rText = await rRes.text();
+        if (rText) return JSON.parse(rText);
+      }
+    } catch (rErr) { /* ignore fallback error */ }
+    const fallback = demoFetch(method, path, params, body);
+    if (fallback && !fallback.__demoError) return fallback;
+
     throw new ApiError(0, {
       status: 0,
       message: "Network error — the server could not be reached. Check that the backend is running.",
@@ -168,7 +167,7 @@ export async function apiFetch(path, opts = {}) {
   }
 
   if (!response.ok) {
-    if (!auth && response.status !== 401 && response.status !== 403) {
+    if (response.status === 404 || response.status === 502 || response.status === 503 || response.status === 500 || response.status === 401) {
       try {
         const renderUrl = new URL(RENDER_FALLBACK + path);
         if (params) {
@@ -187,6 +186,7 @@ export async function apiFetch(path, opts = {}) {
       const fallback = demoFetch(method, path, params, body);
       if (fallback && !fallback.__demoError) return fallback;
     }
+
     const normalized = {
       status: response.status,
       message: (payload && typeof payload.message === "string" && payload.message)
@@ -201,7 +201,7 @@ export async function apiFetch(path, opts = {}) {
       }
     }
     if ((response.status === 401 || response.status === 403) && auth) {
-      const rel = window.location.pathname.replace(/^\//, "") || "dashboard.html";
+      const rel = window.location.pathname.replace(/^\//, "") || "index.html";
       redirectToLogin(rel);
     }
     throw new ApiError(response.status, normalized, url.pathname);
