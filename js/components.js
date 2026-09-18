@@ -591,18 +591,13 @@ export function injectAdminShell(active, user) {
     aside.innerHTML = `
       <div class="admin-brand">${brandBlock()}<span class="badge b-admin">${user && user.role === "CORE_MEMBER" ? "Moderation" : "Admin"}</span></div>
       <p class="admin-nav-label">Manage</p>
-      <nav class="admin-nav anime-nav-pill-container" id="admin-nav-pill-root" aria-label="Admin sections" style="position:relative;flex-direction:column;align-items:stretch;background:transparent;border:none;box-shadow:none;padding:0.25rem 0.65rem;">${links}</nav>
-      <div class="admin-side-foot">
-        <a class="admin-nav-link" href="https://sky-ydv2008.github.io/Team.Apex/">${icon("globe")} Back to Public Website</a>
-      </div>`;
+      <nav class="admin-nav anime-nav-pill-container" id="admin-nav-pill-root" aria-label="Admin sections" style="position:relative;flex-direction:column;align-items:stretch;background:transparent;border:none;box-shadow:none;padding:0.25rem 0.65rem;">${links}</nav>`;
 
     const adminNavPill = document.getElementById("admin-nav-pill-root");
     if (adminNavPill) initAnimeMascotNav(adminNavPill);
   }
 
   if (topbar) {
-    const who = user && user.name ? esc(user.name) : "Admin";
-    const initialsName = user && user.name ? initials(user.name) : "A";
     topbar.innerHTML = `
       <div class="admin-top-left">
         <button class="nav-burger" id="admin-burger" type="button" aria-expanded="false" aria-controls="admin-sidebar" aria-label="Toggle sidebar">
@@ -612,7 +607,12 @@ export function injectAdminShell(active, user) {
         <h1 class="admin-page-title">${esc(section.label)}</h1>
       </div>
       <div class="admin-top-right">
-        <a class="btn btn-sm btn-outline" href="https://sky-ydv2008.github.io/Team.Apex/" title="Switch back to Public Website" style="border-color:rgba(34,211,238,0.5);color:#22d3ee;background:rgba(34,211,238,0.15);display:inline-flex;align-items:center;gap:0.35rem;margin-right:0.75rem;font-weight:600;">${icon("globe")} <span>Back to Public Website</span></a>
+        <span class="admin-top-user">
+          ${avatar(who, "", "avatar-sm avatar-round")}
+        <h1 class="admin-page-title">${esc(section.label)}</h1>
+      </div>
+      <div class="admin-top-right">
+        
         <span class="admin-top-user">
           ${avatar(who, "", "avatar-sm avatar-round")}
           <span class="who">${who}<span>${user && user.role ? esc(humanize(user.role)) : "Administrator"}</span></span>
