@@ -1,5 +1,5 @@
 /**
- * Apex Innovators — api.js
+ * Apex Innovators Admin — api.js
  * Fetch wrapper around the REST surface (prefix `/api`).
  * - Bearer token (ai_token) attached when opts.auth is true.
  * - JSON errors normalized to the contract error shape:
@@ -10,7 +10,10 @@
 
 import { demoActive, demoFetch } from "./demo-data.js";
 
-export const API_BASE = "/api";
+const RENDER_FALLBACK = "https://apex-innovators.onrender.com/api";
+export const API_BASE = (typeof window !== "undefined" && window.API_BASE_URL)
+  ? window.API_BASE_URL
+  : "/api";
 
 /** localStorage keys — shared with auth.js (do not rename). */
 export const TOKEN_KEY = "ai_token";
@@ -51,7 +54,7 @@ const STATUS_TEXT = {
 };
 
 export function loginPath() {
-  return window.location.pathname.includes("/admin/") ? "../login.html" : "login.html";
+  return "login.html";
 }
 
 export function clearSession() {
@@ -82,7 +85,10 @@ export function redirectToLogin(nextPath) {
 export async function apiFetch(path, opts = {}) {
   const { method = "GET", body, params, auth = false } = opts;
 
-  const url = new URL(API_BASE + path, window.location.origin);
+  const basePrefix = API_BASE.startsWith("http://") || API_BASE.startsWith("https://")
+    ? API_BASE
+    : window.location.origin + API_BASE;
+  const url = new URL(basePrefix + path);
   if (params) {
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== null && value !== "") {
@@ -96,7 +102,7 @@ export async function apiFetch(path, opts = {}) {
     if (demoResult && demoResult.__demoError) {
       const de = demoResult.__demoError;
       if (de.status === 401 && auth) {
-        const rel = window.location.pathname.replace(/^\//, "") || "index.html";
+        const rel = window.location.pathname.replace(/^\//, "") || "dashboard.html";
         redirectToLogin(rel);
       }
       throw new ApiError(de.status, {
@@ -126,6 +132,21 @@ export async function apiFetch(path, opts = {}) {
     });
   } catch (err) {
     if (!auth) {
+      try {
+        const renderUrl = new URL(RENDER_FALLBACK + path);
+        if (params) {
+          for (const [key, value] of Object.entries(params)) {
+            if (value !== undefined && value !== null && value !== "") {
+              renderUrl.searchParams.set(key, String(value));
+            }
+          }
+        }
+        const rRes = await fetch(renderUrl, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
+        if (rRes.ok) {
+          const rText = await rRes.text();
+          if (rText) return JSON.parse(rText);
+        }
+      } catch (rErr) { /* ignore fallback error */ }
       const fallback = demoFetch(method, path, params, body);
       if (fallback && !fallback.__demoError) return fallback;
     }
@@ -136,6 +157,7 @@ export async function apiFetch(path, opts = {}) {
       path: url.pathname,
     }, url.pathname);
   }
+
   // 204 No Content
   if (response.status === 204) return null;
 
@@ -147,6 +169,21 @@ export async function apiFetch(path, opts = {}) {
 
   if (!response.ok) {
     if (!auth && response.status !== 401 && response.status !== 403) {
+      try {
+        const renderUrl = new URL(RENDER_FALLBACK + path);
+        if (params) {
+          for (const [key, value] of Object.entries(params)) {
+            if (value !== undefined && value !== null && value !== "") {
+              renderUrl.searchParams.set(key, String(value));
+            }
+          }
+        }
+        const rRes = await fetch(renderUrl, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
+        if (rRes.ok) {
+          const rText = await rRes.text();
+          if (rText) return JSON.parse(rText);
+        }
+      } catch (rErr) { /* ignore fallback error */ }
       const fallback = demoFetch(method, path, params, body);
       if (fallback && !fallback.__demoError) return fallback;
     }
@@ -158,14 +195,13 @@ export async function apiFetch(path, opts = {}) {
       timestamp: (payload && payload.timestamp) || new Date().toISOString(),
       path: (payload && payload.path) || url.pathname,
     };
-    // Merge any extra fields the backend included (e.g. fieldErrors).
     if (payload && typeof payload === "object") {
       for (const [k, v] of Object.entries(payload)) {
         if (!(k in normalized)) normalized[k] = v;
       }
     }
     if ((response.status === 401 || response.status === 403) && auth) {
-      const rel = window.location.pathname.replace(/^\//, "") || "index.html";
+      const rel = window.location.pathname.replace(/^\//, "") || "dashboard.html";
       redirectToLogin(rel);
     }
     throw new ApiError(response.status, normalized, url.pathname);

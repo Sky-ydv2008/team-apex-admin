@@ -254,7 +254,7 @@ const PUBLIC_LINKS = [
 ];
 
 function logoPath() {
-  return typeof window !== "undefined" && window.location.pathname.includes("/admin/") ? "../logo.png" : "logo.png";
+  return "logo.png";
 }
 
 function brandMark() {

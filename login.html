@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Login — Apex Innovators</title>
+  <meta name="description" content="Log in to your Apex Innovators Admin account to access moderation queues and platform overview.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0a0f1a">
+  <link rel="icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body id="top">
+  <main id="main-content" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem 1rem;">
+    <div class="container" style="max-width:520px;width:100%;">
+      <div class="card card-pad spotlight-card" style="border:1px solid rgba(168,85,247,0.3);box-shadow:0 12px 40px rgba(0,0,0,0.5);">
+        <div style="text-align:center;margin-bottom:1.5rem;">
+          <img src="logo.png" alt="Apex Logo" style="width:56px;height:56px;border-radius:50%;object-fit:cover;margin:0 auto 1rem;box-shadow:0 0 20px rgba(168,85,247,0.4);border:2px solid rgba(168,85,247,0.5);">
+          <span class="eyebrow center-rule" style="justify-content:center;color:#c084fc;">Admin Control</span>
+          <h1 style="font-size:1.8rem;font-weight:800;" class="text-gradient">Apex Admin Portal</h1>
+          <p class="muted" style="font-size:0.88rem;margin-top:0.4rem;">Sign in with your Admin or Core Member account.</p>
+        </div>
+
+        <div id="login-alert" style="margin-bottom:1.1rem;"></div>
+
+        <form id="login-form" class="form" novalidate>
+          <div class="field">
+            <label for="email">Email address</label>
+            <div class="input-glow-wrapper">
+              <input class="input" id="email" name="email" type="email" maxlength="190" value="apex.innovator.team@gmail.com" placeholder="apex.innovator.team@gmail.com" required autocomplete="email" autofocus>
+            </div>
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-glow-wrapper">
+              <input class="input" id="password" name="password" type="password" maxlength="128" value="Apex@Shivam" placeholder="Your password" required autocomplete="current-password">
+            </div>
+          </div>
+          <div class="form-actions" style="margin-top:1.2rem;">
+            <button class="btn btn-primary btn-lg btn-block" type="submit" style="background:linear-gradient(135deg, #a855f7 0%, #06b6d4 100%);border:none;box-shadow:0 4px 15px rgba(168,85,247,0.4);">
+              <span>Sign In to Admin Panel</span>
+            </button>
+          </div>
+        </form>
+
+        <div style="margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,0.08);font-size:0.84rem;" class="faint">
+          <p style="margin-bottom:0.4rem;"><strong>Default Admin Credentials:</strong></p>
+          <p style="margin:0.2rem 0;">Email: <code style="color:#22d3ee;">apex.innovator.team@gmail.com</code></p>
+          <p style="margin:0.2rem 0;">Password: <code style="color:#22d3ee;">Apex@Shivam</code></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="js/components.js"></script>
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>
